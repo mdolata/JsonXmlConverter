@@ -1,17 +1,30 @@
 package com.mdolata.jsonxmlconverter;
 
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class Main {
-    public static void main(String[] args ){
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String[] arguments = scanner.nextLine().split(" ");
-        String word = arguments[0];
-        int n = Integer.parseInt(arguments[1]);
+        String parametersList = scanner.nextLine().split("\\?")[1];
 
-        if (word.length() > n) {
-            word = word.substring(n) + word.substring(0, n);
-        }
-        System.out.println(word);
+        String[] params = parametersList.split("&");
+
+        Stream.of(params)
+                .map(param -> param.split("="))
+                .forEachOrdered(entry -> {
+                    String value = (entry.length == 2) ? entry[1] : "not found";
+                    System.out.println(String.format("%s : %s", entry[0], value));
+                });
+
+        String pass = Stream.of(params)
+                .filter(s -> s.startsWith("pass"))
+                .findFirst()
+                .map(s -> s.split("=")[1])
+                .map(s -> String.format("password : %s", s))
+                .orElse("");
+
+        System.out.println(pass);
     }
 }
+
