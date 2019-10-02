@@ -1,19 +1,17 @@
 package com.mdolata.jsonxmlconverter;
 
 import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
     public static void main(String[] args ){
         Scanner scanner = new Scanner(System.in);
-        String word = scanner.nextLine();
+        String[] arguments = scanner.nextLine().split(" ");
+        String word = arguments[0];
+        int n = Integer.parseInt(arguments[1]);
 
-        var collect = Stream.of(word.split(""))
-                .map(s -> s + s)
-                .collect(Collectors.joining());
-
-        System.out.println(collect);
-
+        if (word.length() > n) {
+            word = word.substring(n) + word.substring(0, n);
+        }
+        System.out.println(word);
     }
 }
