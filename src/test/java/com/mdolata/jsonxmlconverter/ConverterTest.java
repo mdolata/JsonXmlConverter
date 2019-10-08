@@ -28,7 +28,33 @@ public class ConverterTest {
                 {"<host>127.0.0.1</host>", "{\"host\":\"127.0.0.1\"}"},
                 {"<jdk>1.8.9</jdk>", "{\"jdk\" : \"1.8.9\"}"},
                 {"<success/>", "{\"success\": null }"},
-                {"<storage/>", "{ \"storage\" : null }"}
+                {"<storage/>", "{ \"storage\" : null }"},
+                {"<employee department = \"manager\">Garry Smith</employee>", "{\n" +
+                        "    \"employee\" : {\n" +
+                        "        \"@department\" : \"manager\",\n" +
+                        "        \"#employee\" : \"Garry Smith\"\n" +
+                        "    }\n" +
+                        "}"},
+                {"<person rate = \"1\" name = \"Torvalds\" />", "{\n" +
+                        "    \"person\" : {\n" +
+                        "        \"@rate\" : \"1\",\n" +
+                        "        \"@name\" : \"Torvalds\",\n" +
+                        "        \"#person\" : null\n" +
+                        "    }\n" +
+                        "}"},
+                {"<employee department = \"manager\">Garry Smith</employee>", "{\n" +
+                        "    \"employee\" : {\n" +
+                        "        \"@department\" : \"manager\",\n" +
+                        "        \"#employee\" : \"Garry Smith\"\n" +
+                        "    }\n" +
+                        "}"},
+                {"<person rate = \"1\" name = \"Torvalds\" />", "{\n" +
+                        "    \"person\" : {\n" +
+                        "        \"@rate\" : 1,\n" +
+                        "        \"@name\" : \"Torvalds\",\n" +
+                        "        \"#person\" : null\n" +
+                        "    }\n" +
+                        "}"}
         });
     }
 
