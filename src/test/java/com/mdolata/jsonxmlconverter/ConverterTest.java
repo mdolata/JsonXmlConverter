@@ -23,37 +23,48 @@ public class ConverterTest {
     }
 
     @Parameterized.Parameters
-    public static Collection fields(){
+    public static Collection fields() {
         return Arrays.asList(new Object[][]{
-                {"<host>127.0.0.1</host>", "{\"host\":\"127.0.0.1\"}"},
-                {"<jdk>1.8.9</jdk>", "{\"jdk\" : \"1.8.9\"}"},
-                {"<success/>", "{\"success\": null }"},
-                {"<storage/>", "{ \"storage\" : null }"},
-                {"<employee department = \"manager\">Garry Smith</employee>", "{\n" +
-                        "    \"employee\" : {\n" +
-                        "        \"@department\" : \"manager\",\n" +
-                        "        \"#employee\" : \"Garry Smith\"\n" +
-                        "    }\n" +
+                {"<host>127.0.0.1</host>", "{" +
+                        " \"host\" : { " +
+                        "       \"#host\" : \"127.0.0.1\" " +
+                        "   }" +
                         "}"},
-                {"<person rate = \"1\" name = \"Torvalds\" />", "{\n" +
-                        "    \"person\" : {\n" +
-                        "        \"@rate\" : \"1\",\n" +
-                        "        \"@name\" : \"Torvalds\",\n" +
-                        "        \"#person\" : null\n" +
-                        "    }\n" +
+                {"<jdk>1.8.9</jdk>", "{" +
+                        " \"jdk\" : { " +
+                        "       \"#jdk\" : \"1.8.9\" " +
+                        "   }" +
                         "}"},
-                {"<employee department = \"manager\">Garry Smith</employee>", "{\n" +
-                        "    \"employee\" : {\n" +
-                        "        \"@department\" : \"manager\",\n" +
-                        "        \"#employee\" : \"Garry Smith\"\n" +
-                        "    }\n" +
+                {"<storage/>", "{" +
+                        " \"storage\" : { " +
+                        "       \"#storage\" : null " +
+                        "   }" +
                         "}"},
-                {"<person rate = \"1\" name = \"Torvalds\" />", "{\n" +
-                        "    \"person\" : {\n" +
-                        "        \"@rate\" : 1,\n" +
-                        "        \"@name\" : \"Torvalds\",\n" +
-                        "        \"#person\" : null\n" +
-                        "    }\n" +
+                {"<employee department = \"manager\">Garry Smith</employee>", "{" +
+                        "    \"employee\" : {" +
+                        "        \"@department\" : \"manager\"," +
+                        "        \"#employee\" : \"Garry Smith\"" +
+                        "    }" +
+                        "}"},
+                {"<person rate = \"1\" name = \"Torvalds\" />", "{" +
+                        "    \"person\" : {" +
+                        "        \"@rate\" : \"1\"," +
+                        "        \"@name\" : \"Torvalds\"," +
+                        "        \"#person\" : null" +
+                        "    }" +
+                        "}"},
+                {"<employee department = \"manager\">Garry Smith</employee>", "{" +
+                        "    \"employee\" : {" +
+                        "        \"@department\" : \"manager\"," +
+                        "        \"#employee\" : \"Garry Smith\"" +
+                        "    }" +
+                        "}"},
+                {"<person rate = \"1\" name = \"Torvalds\" />", "{" +
+                        "    \"person\" : {" +
+                        "        \"@rate\" : 1," +
+                        "        \"@name\" : \"Torvalds\"," +
+                        "        \"#person\" : null" +
+                        "    }" +
                         "}"}
         });
     }
