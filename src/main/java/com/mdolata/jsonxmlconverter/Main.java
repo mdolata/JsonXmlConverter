@@ -52,13 +52,13 @@ public class Main {
 
             map.put(tagName, value);
 
-            return convertMapToJson(map);
+            return convertMapToJson(map, tagName);
         }
 
-        private String convertMapToJson(Map<String, Optional<String>> map) {
-            StringBuilder stringBuilder = new StringBuilder("{");
-            map.forEach((key, value) -> stringBuilder.append(String.format("\"%s\":%s", key, (value.isEmpty()) ? null : "\"" + value.get() + "\"")));
-            return stringBuilder.append("}").toString();
+        private String convertMapToJson(Map<String, Optional<String>> map, String tagName) {
+            StringBuilder stringBuilder = new StringBuilder(String.format("{\"%s\":{", tagName));
+            map.forEach((key, value) -> stringBuilder.append(String.format("\"#%s\":%s", key, (value.isEmpty()) ? null : "\"" + value.get() + "\"")));
+            return stringBuilder.append("}}").toString();
         }
 
         private Optional<String> getValue(String xml, String tagName) {
@@ -118,7 +118,7 @@ public class Main {
         }
 
         private String getValue(String json, String keyName) {
-            int indexOfStartKey = json.indexOf(keyName);
+            int indexOfStartKey = json.indexOf("#" + keyName);
             int indexOfEndValue = json.indexOf("}");
 
             String thisJson = json.substring(indexOfStartKey, indexOfEndValue);
