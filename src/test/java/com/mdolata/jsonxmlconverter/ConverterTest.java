@@ -14,6 +14,7 @@ public class ConverterTest {
     private final String xml;
     private final String json;
 
+
     private final Main.Converter xmlConverter = new Main.XmlToJsonConverter();
     private final Main.Converter jsonConverter = new Main.JsonToXmlConverter();
 
@@ -59,6 +60,7 @@ public class ConverterTest {
                         "        \"#employee\" : \"Garry Smith\"" +
                         "    }" +
                         "}"},
+               // json to xml only
                 {"<person rate = \"1\" name = \"Torvalds\" />", "{" +
                         "    \"person\" : {" +
                         "        \"@rate\" : 1," +
@@ -73,7 +75,8 @@ public class ConverterTest {
     public void shouldConvertXmlToJson() {
         String resultJson = xmlConverter.convert(xml);
 
-        Assert.assertEquals(json.replaceAll(" ", ""), resultJson);
+
+        Assert.assertEquals(replaceUnneededSpaces(json), resultJson);
     }
 
     @Test
@@ -82,4 +85,24 @@ public class ConverterTest {
 
         Assert.assertEquals(xml, resultXml);
     }
+
+    private String replaceUnneededSpaces(String json) {
+        StringBuilder result = new StringBuilder();
+        boolean inQuotes = false;
+        String[] jsonSplit = json.split("");
+        for (int i = 0; i < jsonSplit.length; i++) {
+            String currentValue = jsonSplit[i];
+            if (currentValue.equals("\"")) {
+                inQuotes = !inQuotes;
+                result.append(currentValue);
+            } else if (currentValue.equals(" ") && inQuotes) {
+                result.append(currentValue);
+            } else if (!currentValue.equals(" ")) {
+                result.append(currentValue);
+            }
+
+        }
+        return result.toString();
+    }
+
 }
