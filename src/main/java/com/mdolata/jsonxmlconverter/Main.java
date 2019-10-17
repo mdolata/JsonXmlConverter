@@ -1,15 +1,20 @@
 package com.mdolata.jsonxmlconverter;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Scanner;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+
+    public static void main(String[] args) throws IOException {
+
+        String input = Files.readAllLines(Paths.get("test.txt"))
+                .stream()
+                .collect(Collectors.joining());
+
 
         Converter converter = ConverterFactory.getConverter(input);
 
@@ -41,6 +46,16 @@ public class Main {
         }
     }
 
+    static class Attribute {
+        final String name;
+        final String value;
+
+        Attribute(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+    }
+
     static class XmlToJsonConverter implements Converter {
 
         @Override
@@ -49,23 +64,78 @@ public class Main {
 
             String tagName = getTagName(xml);
             Optional<String> value = getValue(xml, tagName);
+            List<Attribute> attributes = getAttributes(xml, tagName);
 
             map.put(tagName, value);
 
-            return convertMapToJson(map);
+            return convertMapToJson(map, tagName, attributes);
         }
 
-        private String convertMapToJson(Map<String, Optional<String>> map) {
-            StringBuilder stringBuilder = new StringBuilder("{");
-            map.forEach((key, value) -> stringBuilder.append(String.format("\"%s\":%s", key, (value.isEmpty()) ? null : "\"" + value.get() + "\"")));
-            return stringBuilder.append("}").toString();
+        private List<Attribute> getAttributes(String xml, String tagName) {
+            int indexOfStartAttributes = xml.indexOf(String.format("<%s", tagName)) + String.format("<%s", tagName).length();
+            String closeTag = (hasValue(xml)) ? ">" : "/>";
+            int indexOfEndAttributes = xml.indexOf(closeTag);
+
+            ArrayList<Attribute> attributes = new ArrayList<>();
+
+            String rawAttributes = xml.substring(indexOfStartAttributes, indexOfEndAttributes).trim();
+
+            while(isNextAttribute(rawAttributes)){
+                String name = findNextAttribute(rawAttributes);
+                String value = getNextAttributeValue(rawAttributes);
+
+                Attribute attribute = new Attribute(name, value);
+                attributes.add(attribute);
+
+                rawAttributes = removeAttributeWithValue(rawAttributes, name, value);
+            }
+
+
+            return attributes;
+        }
+
+        private String removeAttributeWithValue(String rawAttributes, String attribute, String value) {
+            return rawAttributes.replace(attribute, "")
+                    .replaceFirst("=", "")
+                    .replace(String.format("\"%s\"", value), "")
+                    .trim();
+        }
+
+        private String getNextAttributeValue(String rawAttributes) {
+            int positionOfEqualSign = rawAttributes.indexOf("=");
+            String withoutAttribute = rawAttributes.substring(positionOfEqualSign + 1).trim().replaceFirst("\"", "");
+
+            String secondQuotePosition = withoutAttribute
+                    .chars()
+                    .mapToObj(value -> String.valueOf((char) value))
+                    .takeWhile(s -> !s.equals("\""))
+                    .collect(Collectors.joining());
+            return secondQuotePosition.replaceAll("\"", "");
+        }
+
+        private boolean isNextAttribute(String rawAttributes) {
+            return rawAttributes.contains("=");
+        }
+
+        private String findNextAttribute(String rawAttributes) {
+            int positionOfEqualSign = rawAttributes.indexOf("=");
+            return rawAttributes.substring(0, positionOfEqualSign).trim();
+        }
+
+        private String convertMapToJson(Map<String, Optional<String>> map, String tagName, List<Attribute> attributes) {
+            StringBuilder stringBuilder = new StringBuilder(String.format("{\"%s\":{", tagName));
+            attributes.forEach(attribute -> stringBuilder.append(String.format("\"@%s\":\"%s\",", attribute.name, attribute.value)));
+            map.forEach((key, value) -> stringBuilder.append(String.format("\"#%s\":%s", key, (value.isEmpty()) ? null : "\"" + value.get() + "\"")));
+            return stringBuilder.append("}}").toString();
         }
 
         private Optional<String> getValue(String xml, String tagName) {
             if (!hasValue(xml)) return Optional.empty();
 
+            int indexOfEnd = xml.indexOf(">");
+
             return Optional.of(xml
-                    .replace(String.format("<%s>", tagName), "")
+                    .substring(indexOfEnd + 1)
                     .replace(String.format("</%s>", tagName), ""));
         }
 
@@ -75,12 +145,34 @@ public class Main {
         }
 
         private String getTagName(String xml) {
-            String trim = xml.trim();
-            int indexOfOpenTag = trim.indexOf("<");
+            String trimmedXml = xml.trim();
             String closeTag = (hasValue(xml)) ? ">" : "/>";
-            int indexOfCloseTag = trim.indexOf(closeTag);
-            return trim
+
+            int indexOfOpenTag = trimmedXml.indexOf("<");
+            int indexOfCloseTag = trimmedXml.indexOf(closeTag);
+            String tagNameCandidate = trimmedXml
                     .substring(indexOfOpenTag + 1, indexOfCloseTag);
+
+            String finalTagName;
+            if (tagNameCandidate.contains(" ")){
+                int separatorIndex = tagNameCandidate.indexOf(" ");
+                finalTagName = tagNameCandidate.substring(0, separatorIndex);
+            } else {
+                finalTagName = tagNameCandidate;
+            }
+            return finalTagName;
+        }
+    }
+
+    static class Elements {
+        final String key;
+        final Optional<String> value;
+        final List<Attribute> attributes;
+
+        Elements(String key, Optional<String> value, List<Attribute> attributes) {
+            this.key = key;
+            this.value = value;
+            this.attributes = attributes;
         }
     }
 
@@ -88,37 +180,65 @@ public class Main {
 
         @Override
         public String convert(String json) {
-            Map<String, String> map = convertToMap(json);
+            Elements map = convertToMap(json);
             return convertMapToXml(map);
         }
 
-        private Map<String, String> convertToMap(String json) {
-            Map<String, String> map = new HashMap<>();
+        private Elements convertToMap(String json) {
 
             String keyName = getKeyName(json);
-            String value = getValue(json, keyName);
+            Optional<String> value = getValue(json, keyName);
+            List<Attribute> attributes = getAttributes(json);
 
-            map.put(keyName, value);
-
-            return map;
+            return new Elements(keyName, value, attributes);
         }
 
-        private String convertMapToXml(Map<String, String> map) {
-            StringBuilder stringBuilder = new StringBuilder();
+        private List<Attribute> getAttributes(String json) {
+            String val = revealValue(json);
+            String[] parameters = val.split(",");
+            ArrayList<Attribute> attributes = new ArrayList<>();
 
-            map.forEach((key, value) -> stringBuilder.append(getXmlTag(key, value)));
+            for( String param: parameters){
+               if (param.trim().startsWith("\"@")){
+                   String[] split = param.split(":");
+                   String name = split[0].trim()
+                           .replaceFirst("@", "")
+                           .replace("\"", "");
 
+                   String value = split[1].trim()
+                           .replace("\"", "");
 
-            return stringBuilder.toString();
+                   Attribute attribute = new Attribute(name, value);
+                    attributes.add(attribute);
+               }
+            }
+
+            return attributes;
         }
 
-        private String getXmlTag(String key, String value) {
-            if (value == null) return String.format("<%s/>", key);
-            return String.format("<%s>%s</%s>", key, value, key);
+        private String revealValue(String json) {
+            int firstBracket = json.indexOf("{");
+            String substring = json.substring(firstBracket + 1);
+            int secondBracket = substring.indexOf("{");
+            int lastBracket = substring.lastIndexOf("}");
+
+            return substring.substring(secondBracket + 1, lastBracket- 1).trim();
         }
 
-        private String getValue(String json, String keyName) {
-            int indexOfStartKey = json.indexOf(keyName);
+
+        private String convertMapToXml(Elements elements) {
+            String attributes = elements.attributes.stream()
+                    .map(attribute -> String.format("%s = \"%s\"", attribute.name, attribute.value))
+                    .collect(Collectors.joining(" "));
+
+            if (!attributes.isBlank()) attributes = " " + attributes;
+
+            if (elements.value.isEmpty()) return String.format("<%s%s/>", elements.key, (attributes.isBlank())? "" : attributes + " ");
+            return String.format("<%s%s>%s</%s>", elements.key, attributes, elements.value.get(), elements.key);
+        }
+
+        private Optional<String> getValue(String json, String keyName) {
+            int indexOfStartKey = json.indexOf("#" + keyName);
             int indexOfEndValue = json.indexOf("}");
 
             String thisJson = json.substring(indexOfStartKey, indexOfEndValue);
@@ -126,9 +246,15 @@ public class Main {
             int indexOfStartValue = thisJson.indexOf(":");
             String thisValue = thisJson.substring(indexOfStartValue + 1).trim();
 
-            if (!thisValue.contains("\"")) return null;
+            if (!thisValue.contains("\""))
+                try {
+                    int i = Integer.parseInt(thisValue);
+                    return Optional.of(String.valueOf(i));
+                } catch (NumberFormatException e) {
+                    return Optional.empty();
+                }
 
-            return thisValue.trim().substring(1, thisValue.trim().length() - 1);
+            return Optional.of(thisValue.trim().substring(1, thisValue.trim().length() - 1));
         }
 
         private String getKeyName(String json) {
