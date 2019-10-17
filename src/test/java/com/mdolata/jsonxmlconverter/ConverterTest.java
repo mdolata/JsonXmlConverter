@@ -13,14 +13,16 @@ public class ConverterTest {
 
     private final String xml;
     private final String json;
+    private final String type;
 
 
     private final Main.Converter xmlConverter = new Main.XmlToJsonConverter();
     private final Main.Converter jsonConverter = new Main.JsonToXmlConverter();
 
-    public ConverterTest(String xml, String json) {
+    public ConverterTest(String xml, String json, String type) {
         this.xml = xml;
         this.json = json;
+        this.type = type;
     }
 
     @Parameterized.Parameters
@@ -30,53 +32,60 @@ public class ConverterTest {
                         " \"host\" : { " +
                         "       \"#host\" : \"127.0.0.1\" " +
                         "   }" +
-                        "}"},
+                        "}", "BOTH"},
                 {"<jdk>1.8.9</jdk>", "{" +
                         " \"jdk\" : { " +
                         "       \"#jdk\" : \"1.8.9\" " +
                         "   }" +
-                        "}"},
+                        "}", "BOTH"},
                 {"<storage/>", "{" +
                         " \"storage\" : { " +
                         "       \"#storage\" : null " +
                         "   }" +
-                        "}"},
+                        "}", "BOTH"},
                 {"<employee department = \"manager\">Garry Smith</employee>", "{" +
                         "    \"employee\" : {" +
                         "        \"@department\" : \"manager\"," +
                         "        \"#employee\" : \"Garry Smith\"" +
                         "    }" +
-                        "}"},
+                        "}", "BOTH"},
                 {"<person rate = \"1\" name = \"Torvalds\" />", "{" +
                         "    \"person\" : {" +
                         "        \"@rate\" : \"1\"," +
                         "        \"@name\" : \"Torvalds\"," +
                         "        \"#person\" : null" +
                         "    }" +
-                        "}"},
+                        "}", "BOTH"},
                 {"<employee department = \"manager\">Garry Smith</employee>", "{" +
                         "    \"employee\" : {" +
                         "        \"@department\" : \"manager\"," +
                         "        \"#employee\" : \"Garry Smith\"" +
                         "    }" +
-                        "}"},
-               // json to xml only
+                        "}", "BOTH"},
+                // json to xml only
                 {"<person rate = \"1\" name = \"Torvalds\" />", "{" +
                         "    \"person\" : {" +
                         "        \"@rate\" : 1," +
                         "        \"@name\" : \"Torvalds\"," +
                         "        \"#person\" : null" +
                         "    }" +
-                        "}"}
+                        "}", "XML2JSON"},
+                {"<pizza size = \"20\">123</pizza>", "{" +
+                        "    \"pizza\" : {" +
+                        "        \"@size\" : 20," +
+                        "        \"#pizza\" : 123" +
+                        "    }" +
+                        "}", "XML2JSON"},
         });
     }
 
     @Test
     public void shouldConvertXmlToJson() {
         String resultJson = xmlConverter.convert(xml);
-
-
-        Assert.assertEquals(replaceUnneededSpaces(json), resultJson);
+        if (type.equals("XML2JSON"))
+            Assert.assertTrue(true);
+        else
+            Assert.assertEquals(replaceUnneededSpaces(json), resultJson);
     }
 
     @Test

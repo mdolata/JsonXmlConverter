@@ -1,13 +1,20 @@
 package com.mdolata.jsonxmlconverter;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+
+    public static void main(String[] args) throws IOException {
+
+        String input = Files.readAllLines(Paths.get("test.txt"))
+                .stream()
+                .collect(Collectors.joining());
+
 
         Converter converter = ConverterFactory.getConverter(input);
 
@@ -184,12 +191,11 @@ public class Main {
             List<Attribute> attributes = getAttributes(json);
 
             return new Elements(keyName, value, attributes);
-
         }
 
         private List<Attribute> getAttributes(String json) {
             String val = revealValue(json);
-            String[] parameters = val.split("\",");
+            String[] parameters = val.split(",");
             ArrayList<Attribute> attributes = new ArrayList<>();
 
             for( String param: parameters){
@@ -240,7 +246,13 @@ public class Main {
             int indexOfStartValue = thisJson.indexOf(":");
             String thisValue = thisJson.substring(indexOfStartValue + 1).trim();
 
-            if (!thisValue.contains("\"")) return Optional.empty();
+            if (!thisValue.contains("\""))
+                try {
+                    int i = Integer.parseInt(thisValue);
+                    return Optional.of(String.valueOf(i));
+                } catch (NumberFormatException e) {
+                    return Optional.empty();
+                }
 
             return Optional.of(thisValue.trim().substring(1, thisValue.trim().length() - 1));
         }
