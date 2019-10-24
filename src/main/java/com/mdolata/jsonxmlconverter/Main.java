@@ -24,7 +24,9 @@ public class Main {
     }
 
     interface Converter {
+        @Deprecated
         String convert(String input);
+
         List<Element> convert2Elements(String input);
     }
 
@@ -86,8 +88,26 @@ public class Main {
         }
 
         @Override
-        public List<Element> convert2Elements(String input) {
-            return List.of();
+        public List<Element> convert2Elements(String xml) {
+
+            String tagName = getTagName(xml);
+            Value value = getValueOrNestedXml(xml, tagName);
+            List<Attribute> attributes = getAttributes(xml, tagName);
+
+            Element element = ElementFactory.fromAll(tagName, value, attributes);
+
+            return List.of(element);
+        }
+
+        private Value getValueOrNestedXml(String xml, String tagName) {
+            return mapValue(getValue(xml, tagName));
+        }
+
+        private Value mapValue(Optional<String> value) {
+            return value
+                    .filter(ConverterFactory::isXml)
+                    .map(v -> Value.withXmlValue(Optional.ofNullable(v)))
+                    .orElse(Value.withRawValue(value));
         }
 
         private List<Attribute> getAttributes(String xml, String tagName) {
@@ -99,7 +119,7 @@ public class Main {
 
             String rawAttributes = xml.substring(indexOfStartAttributes, indexOfEndAttributes).trim();
 
-            while(isNextAttribute(rawAttributes)){
+            while (isNextAttribute(rawAttributes)) {
                 String name = findNextAttribute(rawAttributes);
                 String value = getNextAttributeValue(rawAttributes);
 
@@ -173,7 +193,7 @@ public class Main {
                     .substring(indexOfOpenTag + 1, indexOfCloseTag);
 
             String finalTagName;
-            if (tagNameCandidate.contains(" ")){
+            if (tagNameCandidate.contains(" ")) {
                 int separatorIndex = tagNameCandidate.indexOf(" ");
                 finalTagName = tagNameCandidate.substring(0, separatorIndex);
             } else {
@@ -183,15 +203,48 @@ public class Main {
         }
     }
 
+    static class Value {
+        final Optional<String> rawValue;
+        final Optional<String> xmlValue;
+
+        private Value(Optional<String> rawValue, Optional<String> xmlValue) {
+            this.rawValue = rawValue;
+            this.xmlValue = xmlValue;
+        }
+
+        public static Value empty() {
+            return new Value(Optional.empty(), Optional.empty());
+        }
+
+        public static Value withRawValue(Optional<String> value) {
+            return new Value(value, Optional.empty());
+        }
+
+        public static Value withXmlValue(Optional<String> value) {
+            return new Value(Optional.empty(), value);
+        }
+
+    }
+
     static class Element {
         final String key;
         final Optional<String> value;
+        final Value val;
         final List<Attribute> attributes;
 
+        @Deprecated
         Element(String key, Optional<String> value, List<Attribute> attributes) {
             this.key = key;
             this.value = value;
             this.attributes = attributes;
+            this.val = Value.empty();
+        }
+
+        Element(String key, Value value, List<Attribute> attributes) {
+            this.key = key;
+            this.value = Optional.empty();
+            this.attributes = attributes;
+            this.val = value;
         }
 
         @Override
@@ -238,7 +291,12 @@ public class Main {
         }
 
         static Element fromAll(String key, Optional<String> value, List<Attribute> attributes) {
-            return new Element(key, value, attributes);           }
+            return new Element(key, value, attributes);
+        }
+
+        static Element fromAll(String key, Value value, List<Attribute> attributes) {
+            return new Element(key, value, attributes);
+        }
     }
 
     static class JsonToXmlConverter implements Converter {
@@ -268,19 +326,19 @@ public class Main {
             String[] parameters = val.split(",");
             ArrayList<Attribute> attributes = new ArrayList<>();
 
-            for( String param: parameters){
-               if (param.trim().startsWith("\"@")){
-                   String[] split = param.split(":");
-                   String name = split[0].trim()
-                           .replaceFirst("@", "")
-                           .replace("\"", "");
+            for (String param : parameters) {
+                if (param.trim().startsWith("\"@")) {
+                    String[] split = param.split(":");
+                    String name = split[0].trim()
+                            .replaceFirst("@", "")
+                            .replace("\"", "");
 
-                   String value = split[1].trim()
-                           .replace("\"", "");
+                    String value = split[1].trim()
+                            .replace("\"", "");
 
-                   Attribute attribute = new Attribute(name, value);
+                    Attribute attribute = new Attribute(name, value);
                     attributes.add(attribute);
-               }
+                }
             }
 
             return attributes;
@@ -292,7 +350,7 @@ public class Main {
             int secondBracket = substring.indexOf("{");
             int lastBracket = substring.lastIndexOf("}");
 
-            return substring.substring(secondBracket + 1, lastBracket- 1).trim();
+            return substring.substring(secondBracket + 1, lastBracket - 1).trim();
         }
 
 
@@ -303,7 +361,8 @@ public class Main {
 
             if (!attributes.isBlank()) attributes = " " + attributes;
 
-            if (element.value.isEmpty()) return String.format("<%s%s/>", element.key, (attributes.isBlank())? "" : attributes + " ");
+            if (element.value.isEmpty())
+                return String.format("<%s%s/>", element.key, (attributes.isBlank()) ? "" : attributes + " ");
             return String.format("<%s%s>%s</%s>", element.key, attributes, element.value.get(), element.key);
         }
 
