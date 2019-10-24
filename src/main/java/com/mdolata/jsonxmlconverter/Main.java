@@ -25,6 +25,7 @@ public class Main {
 
     interface Converter {
         String convert(String input);
+        List<Element> convert2Elements(String input);
     }
 
     static class ConverterFactory {
@@ -34,7 +35,20 @@ public class Main {
         public static Converter getConverter(String input) {
             if (isXml(input)) return xmlConverter;
             else if (isJson(input)) return jsonConverter;
-            else return (String string) -> string;
+            else {
+                Converter converter = new Converter() {
+                    @Override
+                    public String convert(String input) {
+                        return input;
+                    }
+
+                    @Override
+                    public List<Element> convert2Elements(String input) {
+                        return List.of();
+                    }
+                };
+                return converter;
+            }
         }
 
         private static boolean isJson(String input) {
@@ -69,6 +83,11 @@ public class Main {
             map.put(tagName, value);
 
             return convertMapToJson(map, tagName, attributes);
+        }
+
+        @Override
+        public List<Element> convert2Elements(String input) {
+            return List.of();
         }
 
         private List<Attribute> getAttributes(String xml, String tagName) {
@@ -164,33 +183,84 @@ public class Main {
         }
     }
 
-    static class Elements {
+    static class Element {
         final String key;
         final Optional<String> value;
         final List<Attribute> attributes;
 
-        Elements(String key, Optional<String> value, List<Attribute> attributes) {
+        Element(String key, Optional<String> value, List<Attribute> attributes) {
             this.key = key;
             this.value = value;
             this.attributes = attributes;
         }
+
+        @Override
+        public String toString() {
+            return "Element{" +
+                    "key='" + key + '\'' +
+                    ", value=" + value +
+                    ", attributes=" + attributes +
+                    '}';
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Element element = (Element) o;
+
+            if (!Objects.equals(key, element.key)) return false;
+            if (!Objects.equals(value, element.value)) return false;
+            return Objects.equals(attributes, element.attributes);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key != null ? key.hashCode() : 0;
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
+            return result;
+        }
+    }
+
+    static class ElementFactory {
+        static Element fromPath(String key) {
+            return new Element(key, Optional.empty(), List.of());
+        }
+
+        static Element fromPathAndValue(String key, Optional<String> value) {
+            return new Element(key, value, List.of());
+        }
+
+        static Element fromPathAndAttributes(String key, List<Attribute> attributes) {
+            return new Element(key, Optional.empty(), attributes);
+        }
+
+        static Element fromAll(String key, Optional<String> value, List<Attribute> attributes) {
+            return new Element(key, value, attributes);           }
     }
 
     static class JsonToXmlConverter implements Converter {
 
         @Override
         public String convert(String json) {
-            Elements map = convertToMap(json);
+            Element map = convertToMap(json);
             return convertMapToXml(map);
         }
 
-        private Elements convertToMap(String json) {
+        @Override
+        public List<Element> convert2Elements(String input) {
+            return List.of();
+        }
+
+        private Element convertToMap(String json) {
 
             String keyName = getKeyName(json);
             Optional<String> value = getValue(json, keyName);
             List<Attribute> attributes = getAttributes(json);
 
-            return new Elements(keyName, value, attributes);
+            return new Element(keyName, value, attributes);
         }
 
         private List<Attribute> getAttributes(String json) {
@@ -226,15 +296,15 @@ public class Main {
         }
 
 
-        private String convertMapToXml(Elements elements) {
-            String attributes = elements.attributes.stream()
+        private String convertMapToXml(Element element) {
+            String attributes = element.attributes.stream()
                     .map(attribute -> String.format("%s = \"%s\"", attribute.name, attribute.value))
                     .collect(Collectors.joining(" "));
 
             if (!attributes.isBlank()) attributes = " " + attributes;
 
-            if (elements.value.isEmpty()) return String.format("<%s%s/>", elements.key, (attributes.isBlank())? "" : attributes + " ");
-            return String.format("<%s%s>%s</%s>", elements.key, attributes, elements.value.get(), elements.key);
+            if (element.value.isEmpty()) return String.format("<%s%s/>", element.key, (attributes.isBlank())? "" : attributes + " ");
+            return String.format("<%s%s>%s</%s>", element.key, attributes, element.value.get(), element.key);
         }
 
         private Optional<String> getValue(String json, String keyName) {
