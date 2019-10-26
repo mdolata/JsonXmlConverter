@@ -27,7 +27,7 @@ public class Main {
         @Deprecated
         String convert(String input);
 
-        List<Element> convert2Elements(String input);
+        List<Element> convert2Elements(String input, String key);
     }
 
     static class ConverterFactory {
@@ -45,7 +45,7 @@ public class Main {
                     }
 
                     @Override
-                    public List<Element> convert2Elements(String input) {
+                    public List<Element> convert2Elements(String input, String key) {
                         return List.of();
                     }
                 };
@@ -70,6 +70,32 @@ public class Main {
             this.name = name;
             this.value = value;
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Attribute attribute = (Attribute) o;
+
+            if (name != null ? !name.equals(attribute.name) : attribute.name != null) return false;
+            return value != null ? value.equals(attribute.value) : attribute.value == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name != null ? name.hashCode() : 0;
+            result = 31 * result + (value != null ? value.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Attribute{" +
+                    "name='" + name + '\'' +
+                    ", value='" + value + '\'' +
+                    '}';
+        }
     }
 
     static class XmlToJsonConverter implements Converter {
@@ -88,15 +114,22 @@ public class Main {
         }
 
         @Override
-        public List<Element> convert2Elements(String xml) {
+        public List<Element> convert2Elements(String xml, String key) {
 
-            String tagName = getTagName(xml);
-            Value value = getValueOrNestedXml(xml, tagName);
-            List<Attribute> attributes = getAttributes(xml, tagName);
+            String currentTag = getTagName(xml);
+            String tagName = ((key.isEmpty())?  "" : key + ", ") + currentTag;
+            Value value = getValueOrNestedXml(xml, currentTag);
+            List<Attribute> attributes = getAttributes(xml, currentTag);
 
             Element element = ElementFactory.fromAll(tagName, value, attributes);
 
-            return List.of(element);
+            List<Element> elements = new ArrayList<>(List.of(element));
+
+            if (value.xmlValue.isPresent()) {
+                List<Element> elements1 = convert2Elements(value.xmlValue.get(), tagName);
+                elements.addAll(elements1);
+            }
+            return elements;
         }
 
         private Value getValueOrNestedXml(String xml, String tagName) {
@@ -224,6 +257,13 @@ public class Main {
             return new Value(Optional.empty(), value);
         }
 
+        @Override
+        public String toString() {
+            return "Value{" +
+                    "rawValue=" + rawValue +
+                    ", xmlValue=" + xmlValue +
+                    '}';
+        }
     }
 
     static class Element {
@@ -247,11 +287,13 @@ public class Main {
             this.val = value;
         }
 
+
         @Override
         public String toString() {
             return "Element{" +
                     "key='" + key + '\'' +
                     ", value=" + value +
+                    ", val=" + val +
                     ", attributes=" + attributes +
                     '}';
         }
@@ -263,15 +305,17 @@ public class Main {
 
             Element element = (Element) o;
 
-            if (!Objects.equals(key, element.key)) return false;
-            if (!Objects.equals(value, element.value)) return false;
-            return Objects.equals(attributes, element.attributes);
+            if (key != null ? !key.equals(element.key) : element.key != null) return false;
+            if (value != null ? !value.equals(element.value) : element.value != null) return false;
+            if (val != null ? !val.equals(element.val) : element.val != null) return false;
+            return attributes != null ? attributes.equals(element.attributes) : element.attributes == null;
         }
 
         @Override
         public int hashCode() {
             int result = key != null ? key.hashCode() : 0;
             result = 31 * result + (value != null ? value.hashCode() : 0);
+            result = 31 * result + (val != null ? val.hashCode() : 0);
             result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
             return result;
         }
@@ -308,7 +352,7 @@ public class Main {
         }
 
         @Override
-        public List<Element> convert2Elements(String input) {
+        public List<Element> convert2Elements(String input, String key) {
             return List.of();
         }
 

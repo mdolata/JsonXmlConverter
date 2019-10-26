@@ -100,7 +100,7 @@ public class NestedXmlToElementTest {
 
     @Test
     public void shouldConvertXmlToJson() {
-        List<Element> resultJson = xmlConverter.convert2Elements(xml);
+        List<Element> resultJson = xmlConverter.convert2Elements(xml, "");
         Assert.assertEquals(expectedElements, resultJson);
     }
 }
