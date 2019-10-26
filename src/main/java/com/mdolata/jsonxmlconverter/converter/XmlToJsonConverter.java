@@ -51,7 +51,11 @@ public class XmlToJsonConverter implements Converter {
     }
 
     private boolean hasNextTag(Optional<String> tmp) {
-        return tmp.get().trim().startsWith("<") && tmp.get().trim().endsWith(">");
+        return tmp
+                .map(String::trim)
+                .filter(s -> s.startsWith("<"))
+                .filter(s -> s.endsWith(">"))
+                .isPresent();
     }
 
     private String getNextTag(String tag, String nextTagName) {
