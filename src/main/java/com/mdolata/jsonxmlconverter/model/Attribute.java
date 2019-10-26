@@ -1,6 +1,5 @@
 package com.mdolata.jsonxmlconverter.model;
 
-
 import java.util.Objects;
 
 public class Attribute {

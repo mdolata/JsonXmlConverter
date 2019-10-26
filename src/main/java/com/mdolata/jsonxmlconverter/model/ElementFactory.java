@@ -1,7 +1,5 @@
 package com.mdolata.jsonxmlconverter.model;
 
-import com.mdolata.jsonxmlconverter.Main;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
