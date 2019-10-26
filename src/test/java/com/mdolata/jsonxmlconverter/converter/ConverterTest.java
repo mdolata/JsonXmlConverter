@@ -1,4 +1,4 @@
-package com.mdolata.jsonxmlconverter;
+package com.mdolata.jsonxmlconverter.converter;
 
 import com.mdolata.jsonxmlconverter.converter.Converter;
 import com.mdolata.jsonxmlconverter.converter.JsonToXmlConverter;
@@ -102,8 +102,7 @@ public class ConverterTest {
         StringBuilder result = new StringBuilder();
         boolean inQuotes = false;
         String[] jsonSplit = json.split("");
-        for (int i = 0; i < jsonSplit.length; i++) {
-            String currentValue = jsonSplit[i];
+        for (String currentValue : jsonSplit) {
             if (currentValue.equals("\"")) {
                 inQuotes = !inQuotes;
                 result.append(currentValue);

@@ -12,18 +12,17 @@ public class ConverterFactory {
         if (isXml(input)) return xmlConverter;
         else if (isJson(input)) return jsonConverter;
         else {
-            Converter converter = new Converter() {
+            return new Converter() {
                 @Override
-                public String convert(String input) {
-                    return input;
+                public String convert(String input1) {
+                    return input1;
                 }
 
                 @Override
-                public List<Element> convert2Elements(String input, String key) {
+                public List<Element> convert2Elements(String input1, String key) {
                     return List.of();
                 }
             };
-            return converter;
         }
     }
 

@@ -1,4 +1,4 @@
-package com.mdolata.jsonxmlconverter;
+package com.mdolata.jsonxmlconverter.functionaltest;
 
 import com.mdolata.jsonxmlconverter.converter.Converter;
 import com.mdolata.jsonxmlconverter.converter.XmlToJsonConverter;

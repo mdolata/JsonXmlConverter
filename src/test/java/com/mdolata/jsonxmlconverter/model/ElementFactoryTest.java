@@ -1,4 +1,4 @@
-package com.mdolata.jsonxmlconverter;
+package com.mdolata.jsonxmlconverter.model;
 
 import com.mdolata.jsonxmlconverter.model.Attribute;
 import com.mdolata.jsonxmlconverter.model.Element;
