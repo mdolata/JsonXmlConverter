@@ -1,6 +1,7 @@
 package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.converter.Converter;
+import com.mdolata.jsonxmlconverter.converter.ConverterFactory;
 import com.mdolata.jsonxmlconverter.model.Attribute;
 import com.mdolata.jsonxmlconverter.model.Element;
 import com.mdolata.jsonxmlconverter.model.ElementFactory;
@@ -32,39 +33,7 @@ public class Main {
         }
     }
 
-    static class ConverterFactory {
-        private final static Converter xmlConverter = new XmlToJsonConverter();
-        private final static Converter jsonConverter = new JsonToXmlConverter();
-
-        public static Converter getConverter(String input) {
-            if (isXml(input)) return xmlConverter;
-            else if (isJson(input)) return jsonConverter;
-            else {
-                Converter converter = new Converter() {
-                    @Override
-                    public String convert(String input) {
-                        return input;
-                    }
-
-                    @Override
-                    public List<Element> convert2Elements(String input, String key) {
-                        return List.of();
-                    }
-                };
-                return converter;
-            }
-        }
-
-        private static boolean isJson(String input) {
-            return input.trim().startsWith("{") && input.trim().endsWith("}");
-        }
-
-        private static boolean isXml(String input) {
-            return input.trim().startsWith("<") && input.trim().endsWith(">");
-        }
-    }
-
-    static class XmlToJsonConverter implements Converter {
+    public static class XmlToJsonConverter implements Converter {
 
         @Override
         public String convert(String xml) {
@@ -231,7 +200,7 @@ public class Main {
         }
     }
 
-    static class JsonToXmlConverter implements Converter {
+    public static class JsonToXmlConverter implements Converter {
 
         @Override
         public String convert(String json) {
