@@ -1,5 +1,6 @@
 package com.mdolata.jsonxmlconverter;
 
+import com.mdolata.jsonxmlconverter.model.Attribute;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ public class ElementFactoryTest {
 
     @Test
     public void shouldReturnElementWithKeyAndAttributes() {
-        Main.Attribute e1 = new Main.Attribute("name", "value");
+        Attribute e1 = new Attribute("name", "value");
         Main.Element element = Main.ElementFactory.fromPathAndAttributes("Key", List.of(e1));
 
         Assert.assertEquals("Key", element.key);
@@ -38,7 +39,7 @@ public class ElementFactoryTest {
 
     @Test
     public void shouldReturnElementWithAllFields() {
-        Main.Attribute e1 = new Main.Attribute("name", "value");
+        Attribute e1 = new Attribute("name", "value");
         Main.Element element = Main.ElementFactory.fromAll("Key", Optional.of("Value"), List.of(e1));
 
         Assert.assertEquals("Key", element.key);
