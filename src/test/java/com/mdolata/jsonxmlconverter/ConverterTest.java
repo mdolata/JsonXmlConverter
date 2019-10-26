@@ -1,6 +1,7 @@
 package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.converter.Converter;
+import com.mdolata.jsonxmlconverter.converter.JsonToXmlConverter;
 import com.mdolata.jsonxmlconverter.converter.XmlToJsonConverter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,7 +20,7 @@ public class ConverterTest {
 
 
     private final Converter xmlConverter = new XmlToJsonConverter();
-    private final Converter jsonConverter = new Main.JsonToXmlConverter();
+    private final Converter jsonConverter = new JsonToXmlConverter();
 
     public ConverterTest(String xml, String json, String type) {
         this.xml = xml;

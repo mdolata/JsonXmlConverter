@@ -1,13 +1,12 @@
 package com.mdolata.jsonxmlconverter.converter;
 
-import com.mdolata.jsonxmlconverter.Main;
 import com.mdolata.jsonxmlconverter.model.Element;
 
 import java.util.List;
 
 public class ConverterFactory {
     private final static Converter xmlConverter = new XmlToJsonConverter();
-    private final static Converter jsonConverter = new Main.JsonToXmlConverter();
+    private final static Converter jsonConverter = new JsonToXmlConverter();
 
     public static Converter getConverter(String input) {
         if (isXml(input)) return xmlConverter;
