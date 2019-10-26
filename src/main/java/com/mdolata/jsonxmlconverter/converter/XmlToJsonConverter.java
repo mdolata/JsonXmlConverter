@@ -79,7 +79,7 @@ public class XmlToJsonConverter implements Converter {
         return value
                 .filter(ConverterFactory::isXml)
                 .map(v -> Value.withXmlValue(Optional.ofNullable(v)))
-                .orElse(Value.withRawValue(value));
+                .orElse(Value.withRawValue(value.orElse(null)));
     }
 
     private List<Attribute> getAttributes(String xml, String tagName) {
