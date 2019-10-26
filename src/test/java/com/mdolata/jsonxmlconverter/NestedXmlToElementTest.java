@@ -1,7 +1,7 @@
 package com.mdolata.jsonxmlconverter;
 
-import com.mdolata.jsonxmlconverter.Main.Element;
 import com.mdolata.jsonxmlconverter.model.Attribute;
+import com.mdolata.jsonxmlconverter.model.Element;
 import com.mdolata.jsonxmlconverter.model.ElementFactory;
 import com.mdolata.jsonxmlconverter.model.Value;
 import org.junit.Assert;
