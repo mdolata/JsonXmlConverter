@@ -18,9 +18,12 @@ public class Main {
 
         Converter converter = ConverterFactory.getConverter(input);
 
-        String result = converter.convert(input);
+        List<Element> result = converter.convert2Elements(input, "");
 
-        System.out.println(result);
+        for (Element element : result) {
+
+            System.out.println(element);
+        }
     }
 
     interface Converter {
@@ -78,8 +81,8 @@ public class Main {
 
             Attribute attribute = (Attribute) o;
 
-            if (name != null ? !name.equals(attribute.name) : attribute.name != null) return false;
-            return value != null ? value.equals(attribute.value) : attribute.value == null;
+            if (!Objects.equals(name, attribute.name)) return false;
+            return Objects.equals(value, attribute.value);
         }
 
         @Override
@@ -117,7 +120,7 @@ public class Main {
         public List<Element> convert2Elements(String xml, String key) {
 
             String currentTag = getTagName(xml);
-            String tagName = ((key.isEmpty())?  "" : key + ", ") + currentTag;
+            String tagName = ((key.isEmpty()) ? "" : key + ", ") + currentTag;
             Value value = getValueOrNestedXml(xml, currentTag);
             List<Attribute> attributes = getAttributes(xml, currentTag);
 
@@ -125,11 +128,40 @@ public class Main {
 
             List<Element> elements = new ArrayList<>(List.of(element));
 
-            if (value.xmlValue.isPresent()) {
-                List<Element> elements1 = convert2Elements(value.xmlValue.get(), tagName);
-                elements.addAll(elements1);
+            Optional<String> tmp = value.xmlValue;
+            if (tmp.isPresent()) {
+                while(hasNextTag(tmp)) {
+                    String nextTagName = getNextTagName(tmp.get());
+                    String nextTag = getNextTag(tmp.get(), nextTagName);
+                    List<Element> elements1 = convert2Elements(nextTag, tagName);
+                    elements.addAll(elements1);
+
+                    int i = tmp.get().indexOf(nextTag)+nextTag.length();
+                    tmp = Optional.of(tmp.get().substring(i));
+                }
             }
             return elements;
+        }
+
+        private boolean hasNextTag(Optional<String> tmp) {
+            return tmp.get().trim().startsWith("<") && tmp.get().trim().endsWith(">");
+        }
+
+        private String getNextTag(String tag, String nextTagName) {
+            boolean b = hasValue(tag);
+            String closedTag;
+            if (b) {
+                closedTag = String.format("</%s>", nextTagName);
+            } else {
+                closedTag = "/>";
+            }
+            int endIndex = tag.indexOf(closedTag);
+
+            return tag.substring(0, endIndex) + closedTag;
+        }
+
+        private String getNextTagName(String value) {
+            return getTagName(value);
         }
 
         private Value getValueOrNestedXml(String xml, String tagName) {
@@ -167,9 +199,9 @@ public class Main {
         }
 
         private String removeAttributeWithValue(String rawAttributes, String attribute, String value) {
-            return rawAttributes.replace(attribute, "")
+            return rawAttributes.replaceFirst(attribute, "")
                     .replaceFirst("=", "")
-                    .replace(String.format("\"%s\"", value), "")
+                    .replaceFirst(String.format("\"%s\"", value), "")
                     .trim();
         }
 
@@ -264,12 +296,30 @@ public class Main {
                     ", xmlValue=" + xmlValue +
                     '}';
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Value value = (Value) o;
+
+            if (!Objects.equals(rawValue, value.rawValue)) return false;
+            return Objects.equals(xmlValue, value.xmlValue);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = rawValue != null ? rawValue.hashCode() : 0;
+            result = 31 * result + (xmlValue != null ? xmlValue.hashCode() : 0);
+            return result;
+        }
     }
 
     static class Element {
         final String key;
         final Optional<String> value;
-        final Value val;
+        final Value newValue;
         final List<Attribute> attributes;
 
         @Deprecated
@@ -277,25 +327,44 @@ public class Main {
             this.key = key;
             this.value = value;
             this.attributes = attributes;
-            this.val = Value.empty();
+            this.newValue = Value.empty();
         }
 
         Element(String key, Value value, List<Attribute> attributes) {
             this.key = key;
             this.value = Optional.empty();
             this.attributes = attributes;
-            this.val = value;
+            this.newValue = value;
         }
 
 
         @Override
         public String toString() {
-            return "Element{" +
-                    "key='" + key + '\'' +
-                    ", value=" + value +
-                    ", val=" + val +
-                    ", attributes=" + attributes +
-                    '}';
+            return "Element:\n" +
+                    "path = " + this.key + "\n" +
+                    valueToString() +
+                    ((!attributes.isEmpty()) ? "attributes:\n" + attributesToString() : "");
+//            return "Element{" +
+//                    "key='" + key + '\'' +
+//                    ", value=" + value +
+//                    ", val=" + newValue +
+//                    ", attributes=" + attributes +
+//                    '}';
+        }
+
+        private String valueToString() {
+            if (newValue.rawValue.isEmpty() && newValue.xmlValue.isEmpty()) return "value = null\n";
+            return (newValue.rawValue.isPresent()) ? ("value = \"" + newValue.rawValue.get() + "\"\n") : "";
+        }
+
+        private String attributesToString() {
+            StringBuilder tmp = new StringBuilder();
+
+            for (Attribute attribute : attributes) {
+                tmp.append(String.format("%s = \"%s\"\n", attribute.name, attribute.value));
+            }
+
+            return tmp.toString();
         }
 
         @Override
@@ -305,17 +374,17 @@ public class Main {
 
             Element element = (Element) o;
 
-            if (key != null ? !key.equals(element.key) : element.key != null) return false;
-            if (value != null ? !value.equals(element.value) : element.value != null) return false;
-            if (val != null ? !val.equals(element.val) : element.val != null) return false;
-            return attributes != null ? attributes.equals(element.attributes) : element.attributes == null;
+            if (!Objects.equals(key, element.key)) return false;
+            if (!Objects.equals(value, element.value)) return false;
+            if (!Objects.equals(newValue, element.newValue)) return false;
+            return Objects.equals(attributes, element.attributes);
         }
 
         @Override
         public int hashCode() {
             int result = key != null ? key.hashCode() : 0;
             result = 31 * result + (value != null ? value.hashCode() : 0);
-            result = 31 * result + (val != null ? val.hashCode() : 0);
+            result = 31 * result + (newValue != null ? newValue.hashCode() : 0);
             result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
             return result;
         }
@@ -326,14 +395,20 @@ public class Main {
             return new Element(key, Optional.empty(), List.of());
         }
 
+        @Deprecated
         static Element fromPathAndValue(String key, Optional<String> value) {
-            return new Element(key, value, List.of());
+            return new Element(key, value, new ArrayList<>());
+        }
+
+        static Element fromPathAndValue(String key, Value value) {
+            return new Element(key, value, new ArrayList<>());
         }
 
         static Element fromPathAndAttributes(String key, List<Attribute> attributes) {
             return new Element(key, Optional.empty(), attributes);
         }
 
+        @Deprecated
         static Element fromAll(String key, Optional<String> value, List<Attribute> attributes) {
             return new Element(key, value, attributes);
         }
