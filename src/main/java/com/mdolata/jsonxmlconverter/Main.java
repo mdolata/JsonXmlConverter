@@ -1,5 +1,6 @@
 package com.mdolata.jsonxmlconverter;
 
+import com.mdolata.jsonxmlconverter.converter.Converter;
 import com.mdolata.jsonxmlconverter.model.Attribute;
 import com.mdolata.jsonxmlconverter.model.Element;
 import com.mdolata.jsonxmlconverter.model.ElementFactory;
@@ -29,13 +30,6 @@ public class Main {
 
             System.out.println(element);
         }
-    }
-
-    interface Converter {
-        @Deprecated
-        String convert(String input);
-
-        List<Element> convert2Elements(String input, String key);
     }
 
     static class ConverterFactory {

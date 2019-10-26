@@ -1,5 +1,6 @@
 package com.mdolata.jsonxmlconverter;
 
+import com.mdolata.jsonxmlconverter.converter.Converter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +17,8 @@ public class ConverterTest {
     private final String type;
 
 
-    private final Main.Converter xmlConverter = new Main.XmlToJsonConverter();
-    private final Main.Converter jsonConverter = new Main.JsonToXmlConverter();
+    private final Converter xmlConverter = new Main.XmlToJsonConverter();
+    private final Converter jsonConverter = new Main.JsonToXmlConverter();
 
     public ConverterTest(String xml, String json, String type) {
         this.xml = xml;
