@@ -1,6 +1,7 @@
 package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.model.Attribute;
+import com.mdolata.jsonxmlconverter.model.ElementFactory;
 import com.mdolata.jsonxmlconverter.model.Value;
 
 import java.io.IOException;
@@ -236,21 +237,21 @@ public class Main {
     }
 
 
-    static class Element {
+    public static class Element {
         final String key;
         final Optional<String> value;
         final Value newValue;
         final List<Attribute> attributes;
 
         @Deprecated
-        Element(String key, Optional<String> value, List<Attribute> attributes) {
+        public Element(String key, Optional<String> value, List<Attribute> attributes) {
             this.key = key;
             this.value = value;
             this.attributes = attributes;
             this.newValue = Value.empty();
         }
 
-        Element(String key, Value value, List<Attribute> attributes) {
+        public Element(String key, Value value, List<Attribute> attributes) {
             this.key = key;
             this.value = Optional.empty();
             this.attributes = attributes;
@@ -307,34 +308,6 @@ public class Main {
             result = 31 * result + (newValue != null ? newValue.hashCode() : 0);
             result = 31 * result + (attributes != null ? attributes.hashCode() : 0);
             return result;
-        }
-    }
-
-    static class ElementFactory {
-        static Element fromPath(String key) {
-            return new Element(key, Optional.empty(), List.of());
-        }
-
-        @Deprecated
-        static Element fromPathAndValue(String key, Optional<String> value) {
-            return new Element(key, value, new ArrayList<>());
-        }
-
-        static Element fromPathAndValue(String key, Value value) {
-            return new Element(key, value, new ArrayList<>());
-        }
-
-        static Element fromPathAndAttributes(String key, List<Attribute> attributes) {
-            return new Element(key, Optional.empty(), attributes);
-        }
-
-        @Deprecated
-        static Element fromAll(String key, Optional<String> value, List<Attribute> attributes) {
-            return new Element(key, value, attributes);
-        }
-
-        static Element fromAll(String key, Value value, List<Attribute> attributes) {
-            return new Element(key, value, attributes);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.model.Attribute;
+import com.mdolata.jsonxmlconverter.model.ElementFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class ElementFactoryTest {
 
     @Test
     public void shouldReturnElementWithKeyOnly() {
-        Main.Element element = Main.ElementFactory.fromPath("Key");
+        Main.Element element = ElementFactory.fromPath("Key");
 
         Assert.assertEquals("Key", element.key);
         Assert.assertEquals(Optional.empty(), element.value);
@@ -20,7 +21,7 @@ public class ElementFactoryTest {
 
     @Test
     public void shouldReturnElementWithKeyAndValue() {
-        Main.Element element = Main.ElementFactory.fromPathAndValue("Key", Optional.of("Value"));
+        Main.Element element = ElementFactory.fromPathAndValue("Key", Optional.of("Value"));
 
         Assert.assertEquals("Key", element.key);
         Assert.assertEquals(Optional.of("Value"), element.value);
@@ -30,7 +31,7 @@ public class ElementFactoryTest {
     @Test
     public void shouldReturnElementWithKeyAndAttributes() {
         Attribute e1 = new Attribute("name", "value");
-        Main.Element element = Main.ElementFactory.fromPathAndAttributes("Key", List.of(e1));
+        Main.Element element = ElementFactory.fromPathAndAttributes("Key", List.of(e1));
 
         Assert.assertEquals("Key", element.key);
         Assert.assertEquals(Optional.empty(), element.value);
@@ -40,7 +41,7 @@ public class ElementFactoryTest {
     @Test
     public void shouldReturnElementWithAllFields() {
         Attribute e1 = new Attribute("name", "value");
-        Main.Element element = Main.ElementFactory.fromAll("Key", Optional.of("Value"), List.of(e1));
+        Main.Element element = ElementFactory.fromAll("Key", Optional.of("Value"), List.of(e1));
 
         Assert.assertEquals("Key", element.key);
         Assert.assertEquals(Optional.of("Value"), element.value);

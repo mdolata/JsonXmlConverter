@@ -2,6 +2,7 @@ package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.Main.Element;
 import com.mdolata.jsonxmlconverter.model.Attribute;
+import com.mdolata.jsonxmlconverter.model.ElementFactory;
 import com.mdolata.jsonxmlconverter.model.Value;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class NestedXmlToElementTest {
                         "        <date day=\"12\" month=\"12\" year=\"2018\"/>\n" +
                         "    </email>\n" +
                         "</transaction>", List.of(
-                        Main.ElementFactory.fromPathAndValue("transaction", Value.withXmlValue(Optional.of("\n" +
+                        ElementFactory.fromPathAndValue("transaction", Value.withXmlValue(Optional.of("\n" +
                                 "    <id>6753322</id>\n" +
                                 "    <number region=\"Russia\">8-900-000-00-00</number>\n" +
                                 "    <nonattr />\n" +
@@ -64,15 +65,15 @@ public class NestedXmlToElementTest {
                                 "        <date day=\"12\" month=\"12\" year=\"2018\"/>\n" +
                                 "    </email>\n" +
                                 ""))),
-                        Main.ElementFactory.fromPathAndValue("transaction, id", Value.withRawValue(Optional.of("6753322"))),
-                        Main.ElementFactory.fromAll("transaction, number", Value.withRawValue(Optional.of("8-900-000-00-00")), List.of(new Attribute("region", "Russia"))),
-                        Main.ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(Optional.empty())),
-                        Main.ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(Optional.of(""))),
-                        Main.ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(Optional.of("text"))),
-                        Main.ElementFactory.fromAll("transaction, attr", Value.withRawValue(Optional.empty()), List.of(new Attribute("id", "1"))),
-                        Main.ElementFactory.fromAll("transaction, attr", Value.withRawValue(Optional.of("")), List.of(new Attribute("id", "2"))),
-                        Main.ElementFactory.fromAll("transaction, attr", Value.withRawValue(Optional.of("text")), List.of(new Attribute("id", "3"))),
-                        Main.ElementFactory.fromPathAndValue("transaction, email", Value.withXmlValue(Optional.of("\n" +
+                        ElementFactory.fromPathAndValue("transaction, id", Value.withRawValue(Optional.of("6753322"))),
+                        ElementFactory.fromAll("transaction, number", Value.withRawValue(Optional.of("8-900-000-00-00")), List.of(new Attribute("region", "Russia"))),
+                        ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(Optional.empty())),
+                        ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(Optional.of(""))),
+                        ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(Optional.of("text"))),
+                        ElementFactory.fromAll("transaction, attr", Value.withRawValue(Optional.empty()), List.of(new Attribute("id", "1"))),
+                        ElementFactory.fromAll("transaction, attr", Value.withRawValue(Optional.of("")), List.of(new Attribute("id", "2"))),
+                        ElementFactory.fromAll("transaction, attr", Value.withRawValue(Optional.of("text")), List.of(new Attribute("id", "3"))),
+                        ElementFactory.fromPathAndValue("transaction, email", Value.withXmlValue(Optional.of("\n" +
                                         "        <to>to_example@gmail.com</to>\n" +
                                         "        <from>from_example@gmail.com</from>\n" +
                                         "        <subject>Project discussion</subject>\n" +
@@ -80,52 +81,52 @@ public class NestedXmlToElementTest {
                                         "        <date day=\"12\" month=\"12\" year=\"2018\"/>\n" +
                                 "    "
                         ))),
-                        Main.ElementFactory.fromPathAndValue("transaction, email, to", Value.withRawValue(Optional.of("to_example@gmail.com"))),
-                        Main.ElementFactory.fromPathAndValue("transaction, email, from", Value.withRawValue(Optional.of("from_example@gmail.com"))),
-                        Main.ElementFactory.fromPathAndValue("transaction, email, subject", Value.withRawValue(Optional.of("Project discussion"))),
-                        Main.ElementFactory.fromAll("transaction, email, body", Value.withRawValue(Optional.of("Body message")), List.of(new Attribute("font", "Verdana"))),
-                        Main.ElementFactory.fromAll("transaction, email, date", Value.withRawValue(Optional.empty()), List.of(new Attribute("day", "12"), new Attribute("month", "12"), new Attribute("year", "2018")))
+                        ElementFactory.fromPathAndValue("transaction, email, to", Value.withRawValue(Optional.of("to_example@gmail.com"))),
+                        ElementFactory.fromPathAndValue("transaction, email, from", Value.withRawValue(Optional.of("from_example@gmail.com"))),
+                        ElementFactory.fromPathAndValue("transaction, email, subject", Value.withRawValue(Optional.of("Project discussion"))),
+                        ElementFactory.fromAll("transaction, email, body", Value.withRawValue(Optional.of("Body message")), List.of(new Attribute("font", "Verdana"))),
+                        ElementFactory.fromAll("transaction, email, date", Value.withRawValue(Optional.empty()), List.of(new Attribute("day", "12"), new Attribute("month", "12"), new Attribute("year", "2018")))
                 )},
                 {"<Node/>",
                         List.of(
-                                Main.ElementFactory.fromPath("Node")
+                                ElementFactory.fromPath("Node")
                         )},
                 {"<Node>" +
                         "<Child/>" +
                         "</Node>",
                         List.of(
-                                Main.ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child/>"))),
-                                Main.ElementFactory.fromPath("Node, Child")
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child/>"))),
+                                ElementFactory.fromPath("Node, Child")
                         )},
                 {"<Node>" +
                         "<Child>value</Child>" +
                         "</Node>",
                         List.of(
-                                Main.ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child>value</Child>"))),
-                                Main.ElementFactory.fromPathAndValue("Node, Child", Value.withRawValue(Optional.of("value")))
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child>value</Child>"))),
+                                ElementFactory.fromPathAndValue("Node, Child", Value.withRawValue(Optional.of("value")))
                         )},
                 {"<Node>" +
                         "<Child id=\"a\"/>" +
                         "</Node>",
                         List.of(
-                                Main.ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\"/>"))),
-                                Main.ElementFactory.fromPathAndAttributes("Node, Child", List.of(new Attribute("id", "a")))
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\"/>"))),
+                                ElementFactory.fromPathAndAttributes("Node, Child", List.of(new Attribute("id", "a")))
                         )},
                 {"<Node>" +
                         "<Child id=\"a\">value</Child>" +
                         "</Node>",
                         List.of(
-                                Main.ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\">value</Child>"))) ,
-                                Main.ElementFactory.fromAll("Node, Child", Value.withRawValue(Optional.of("value")), List.of(new Attribute("id", "a")))
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\">value</Child>"))) ,
+                                ElementFactory.fromAll("Node, Child", Value.withRawValue(Optional.of("value")), List.of(new Attribute("id", "a")))
                         )},
                 {"<Node>" +
                         "<Child id=\"a\">value1</Child>" +
                         "<Child id=\"b\">value2</Child>" +
                         "</Node>",
                         List.of(
-                                Main.ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\">value1</Child><Child id=\"b\">value2</Child>"))) ,
-                                Main.ElementFactory.fromAll("Node, Child", Value.withRawValue(Optional.of("value1")), List.of(new Attribute("id", "a"))),
-                                Main.ElementFactory.fromAll("Node, Child", Value.withRawValue(Optional.of("value2")), List.of(new Attribute("id", "b")))
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\">value1</Child><Child id=\"b\">value2</Child>"))) ,
+                                ElementFactory.fromAll("Node, Child", Value.withRawValue(Optional.of("value1")), List.of(new Attribute("id", "a"))),
+                                ElementFactory.fromAll("Node, Child", Value.withRawValue(Optional.of("value2")), List.of(new Attribute("id", "b")))
                         )}
 
 
