@@ -50,7 +50,7 @@ public class NestedXmlToElementTest {
                         "        <date day=\"12\" month=\"12\" year=\"2018\"/>\n" +
                         "    </email>\n" +
                         "</transaction>", List.of(
-                        ElementFactory.fromPathAndValue("transaction", Value.withXmlValue(Optional.of("\n" +
+                        ElementFactory.fromPathAndValue("transaction", Value.withXmlValue("\n" +
                                 "    <id>6753322</id>\n" +
                                 "    <number region=\"Russia\">8-900-000-00-00</number>\n" +
                                 "    <nonattr />\n" +
@@ -66,7 +66,7 @@ public class NestedXmlToElementTest {
                                 "        <body font=\"Verdana\">Body message</body>\n" +
                                 "        <date day=\"12\" month=\"12\" year=\"2018\"/>\n" +
                                 "    </email>\n" +
-                                ""))),
+                                "")),
                         ElementFactory.fromPathAndValue("transaction, id", Value.withRawValue("6753322")),
                         ElementFactory.fromAll("transaction, number", Value.withRawValue("8-900-000-00-00"), List.of(new Attribute("region", "Russia"))),
                         ElementFactory.fromPathAndValue("transaction, nonattr", Value.withRawValue(null)),
@@ -75,14 +75,14 @@ public class NestedXmlToElementTest {
                         ElementFactory.fromAll("transaction, attr", Value.withRawValue(null), List.of(new Attribute("id", "1"))),
                         ElementFactory.fromAll("transaction, attr", Value.withRawValue(""), List.of(new Attribute("id", "2"))),
                         ElementFactory.fromAll("transaction, attr", Value.withRawValue("text"), List.of(new Attribute("id", "3"))),
-                        ElementFactory.fromPathAndValue("transaction, email", Value.withXmlValue(Optional.of("\n" +
+                        ElementFactory.fromPathAndValue("transaction, email", Value.withXmlValue("\n" +
                                         "        <to>to_example@gmail.com</to>\n" +
                                         "        <from>from_example@gmail.com</from>\n" +
                                         "        <subject>Project discussion</subject>\n" +
                                         "        <body font=\"Verdana\">Body message</body>\n" +
                                         "        <date day=\"12\" month=\"12\" year=\"2018\"/>\n" +
                                 "    "
-                        ))),
+                        )),
                         ElementFactory.fromPathAndValue("transaction, email, to", Value.withRawValue("to_example@gmail.com")),
                         ElementFactory.fromPathAndValue("transaction, email, from", Value.withRawValue("from_example@gmail.com")),
                         ElementFactory.fromPathAndValue("transaction, email, subject", Value.withRawValue("Project discussion")),
@@ -97,28 +97,28 @@ public class NestedXmlToElementTest {
                         "<Child/>" +
                         "</Node>",
                         List.of(
-                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child/>"))),
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue("<Child/>")),
                                 ElementFactory.fromPath("Node, Child")
                         )},
                 {"<Node>" +
                         "<Child>value</Child>" +
                         "</Node>",
                         List.of(
-                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child>value</Child>"))),
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue("<Child>value</Child>")),
                                 ElementFactory.fromPathAndValue("Node, Child", Value.withRawValue("value"))
                         )},
                 {"<Node>" +
                         "<Child id=\"a\"/>" +
                         "</Node>",
                         List.of(
-                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\"/>"))),
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue("<Child id=\"a\"/>")),
                                 ElementFactory.fromPathAndAttributes("Node, Child", List.of(new Attribute("id", "a")))
                         )},
                 {"<Node>" +
                         "<Child id=\"a\">value</Child>" +
                         "</Node>",
                         List.of(
-                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\">value</Child>"))) ,
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue("<Child id=\"a\">value</Child>")) ,
                                 ElementFactory.fromAll("Node, Child", Value.withRawValue("value"), List.of(new Attribute("id", "a")))
                         )},
                 {"<Node>" +
@@ -126,7 +126,7 @@ public class NestedXmlToElementTest {
                         "<Child id=\"b\">value2</Child>" +
                         "</Node>",
                         List.of(
-                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue(Optional.of("<Child id=\"a\">value1</Child><Child id=\"b\">value2</Child>"))) ,
+                                ElementFactory.fromPathAndValue("Node", Value.withXmlValue("<Child id=\"a\">value1</Child><Child id=\"b\">value2</Child>")) ,
                                 ElementFactory.fromAll("Node, Child", Value.withRawValue("value1"), List.of(new Attribute("id", "a"))),
                                 ElementFactory.fromAll("Node, Child", Value.withRawValue("value2"), List.of(new Attribute("id", "b")))
                         )}

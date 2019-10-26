@@ -35,7 +35,7 @@ public class XmlToJsonConverter implements Converter {
 
         List<Element> elements = new ArrayList<>(List.of(element));
 
-        Optional<String> tmp = value.xmlValue;
+        Optional<String> tmp = value.getXmlValue();
         if (tmp.isPresent()) {
             while(hasNextTag(tmp)) {
                 String nextTagName = getNextTagName(tmp.get());
@@ -78,7 +78,7 @@ public class XmlToJsonConverter implements Converter {
     private Value mapValue(Optional<String> value) {
         return value
                 .filter(ConverterFactory::isXml)
-                .map(v -> Value.withXmlValue(Optional.ofNullable(v)))
+                .map(Value::withXmlValue)
                 .orElse(Value.withRawValue(value.orElse(null)));
     }
 

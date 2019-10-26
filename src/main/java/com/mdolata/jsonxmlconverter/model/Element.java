@@ -41,7 +41,7 @@ public class Element {
     }
 
     private String valueToString() {
-        if (newValue.getRawValue().isEmpty() && newValue.xmlValue.isEmpty()) return "value = null\n";
+        if (newValue.getRawValue().isEmpty() && newValue.getXmlValue().isEmpty()) return "value = null\n";
         return (newValue.getRawValue().isPresent()) ? ("value = \"" + newValue.getRawValue().get() + "\"\n") : "";
     }
 
