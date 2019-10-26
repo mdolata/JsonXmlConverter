@@ -1,6 +1,7 @@
 package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.converter.Converter;
+import com.mdolata.jsonxmlconverter.converter.XmlToJsonConverter;
 import com.mdolata.jsonxmlconverter.model.Attribute;
 import com.mdolata.jsonxmlconverter.model.Element;
 import com.mdolata.jsonxmlconverter.model.ElementFactory;
@@ -22,7 +23,7 @@ public class NestedXmlToElementTest {
     private final List<Element> expectedElements;
 
 
-    private final Converter xmlConverter = new Main.XmlToJsonConverter();
+    private final Converter xmlConverter = new XmlToJsonConverter();
 
     public NestedXmlToElementTest(String xml, List<Element> expectedElements) {
         this.xml = xml;

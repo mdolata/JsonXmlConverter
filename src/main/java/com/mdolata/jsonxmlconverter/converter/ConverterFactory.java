@@ -6,7 +6,7 @@ import com.mdolata.jsonxmlconverter.model.Element;
 import java.util.List;
 
 public class ConverterFactory {
-    private final static Converter xmlConverter = new Main.XmlToJsonConverter();
+    private final static Converter xmlConverter = new XmlToJsonConverter();
     private final static Converter jsonConverter = new Main.JsonToXmlConverter();
 
     public static Converter getConverter(String input) {

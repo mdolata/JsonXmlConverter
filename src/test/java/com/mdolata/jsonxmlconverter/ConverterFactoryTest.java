@@ -2,6 +2,7 @@ package com.mdolata.jsonxmlconverter;
 
 import com.mdolata.jsonxmlconverter.converter.Converter;
 import com.mdolata.jsonxmlconverter.converter.ConverterFactory;
+import com.mdolata.jsonxmlconverter.converter.XmlToJsonConverter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -12,7 +13,7 @@ public class ConverterFactoryTest {
         String xml = "<test/>";
         Converter converter = ConverterFactory.getConverter(xml);
 
-        Assert.assertEquals(Main.XmlToJsonConverter.class, converter.getClass());
+        Assert.assertEquals(XmlToJsonConverter.class, converter.getClass());
     }
 
     @Test
@@ -28,7 +29,7 @@ public class ConverterFactoryTest {
         String differentStructure = "test";
         Converter converter = ConverterFactory.getConverter(differentStructure);
 
-        Assert.assertNotEquals(Main.XmlToJsonConverter.class, converter.getClass());
+        Assert.assertNotEquals(XmlToJsonConverter.class, converter.getClass());
         Assert.assertNotEquals(Main.JsonToXmlConverter.class, converter.getClass());
     }
 }
