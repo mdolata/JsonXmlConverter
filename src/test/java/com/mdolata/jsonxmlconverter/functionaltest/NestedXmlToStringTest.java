@@ -1,6 +1,8 @@
-package com.mdolata.jsonxmlconverter;
+package com.mdolata.jsonxmlconverter.functionaltest;
 
-import com.mdolata.jsonxmlconverter.Main.Element;
+import com.mdolata.jsonxmlconverter.converter.Converter;
+import com.mdolata.jsonxmlconverter.converter.XmlToJsonConverter;
+import com.mdolata.jsonxmlconverter.model.Element;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +21,7 @@ public class NestedXmlToStringTest {
     private final String expected;
 
 
-    private final Main.Converter xmlConverter = new Main.XmlToJsonConverter();
+    private final Converter xmlConverter = new XmlToJsonConverter();
 
     public NestedXmlToStringTest(String xml, String expected) {
         this.xml = xml;

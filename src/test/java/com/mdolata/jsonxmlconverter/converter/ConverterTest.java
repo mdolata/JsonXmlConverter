@@ -1,5 +1,8 @@
-package com.mdolata.jsonxmlconverter;
+package com.mdolata.jsonxmlconverter.converter;
 
+import com.mdolata.jsonxmlconverter.converter.Converter;
+import com.mdolata.jsonxmlconverter.converter.JsonToXmlConverter;
+import com.mdolata.jsonxmlconverter.converter.XmlToJsonConverter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +19,8 @@ public class ConverterTest {
     private final String type;
 
 
-    private final Main.Converter xmlConverter = new Main.XmlToJsonConverter();
-    private final Main.Converter jsonConverter = new Main.JsonToXmlConverter();
+    private final Converter xmlConverter = new XmlToJsonConverter();
+    private final Converter jsonConverter = new JsonToXmlConverter();
 
     public ConverterTest(String xml, String json, String type) {
         this.xml = xml;
@@ -99,8 +102,7 @@ public class ConverterTest {
         StringBuilder result = new StringBuilder();
         boolean inQuotes = false;
         String[] jsonSplit = json.split("");
-        for (int i = 0; i < jsonSplit.length; i++) {
-            String currentValue = jsonSplit[i];
+        for (String currentValue : jsonSplit) {
             if (currentValue.equals("\"")) {
                 inQuotes = !inQuotes;
                 result.append(currentValue);
