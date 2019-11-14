@@ -81,7 +81,7 @@ public class XmlToJsonConverter implements Converter {
 
     private Value mapValue(Optional<String> value) {
         return value
-                .filter(ConverterFactory::isXml)
+                .filter(Util::isXml)
                 .map(Value::withXmlValue)
                 .orElse(Value.withRawValue(value.orElse(null)));
     }

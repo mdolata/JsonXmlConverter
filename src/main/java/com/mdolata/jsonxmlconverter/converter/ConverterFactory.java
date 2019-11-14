@@ -9,8 +9,8 @@ public class ConverterFactory {
     private final static Converter jsonConverter = new JsonToXmlConverter();
 
     public static Converter getConverter(String input) {
-        if (isXml(input)) return xmlConverter;
-        else if (isJson(input)) return jsonConverter;
+        if (Util.isXml(input)) return xmlConverter;
+        else if (Util.isJson(input)) return jsonConverter;
         else {
             return new Converter() {
                 @Override
@@ -26,12 +26,4 @@ public class ConverterFactory {
         }
     }
 
-    private static boolean isJson(String input) {
-        return input.trim().startsWith("{") && input.trim().endsWith("}");
-    }
-
-    //todo private? or in utils
-    public static boolean isXml(String input) {
-        return input.trim().startsWith("<") && input.trim().endsWith(">");
-    }
 }
